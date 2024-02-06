@@ -12,28 +12,12 @@ from os import system
 # Constants for screen and game board coordinates
 imageX1, imageY1, imageX2, imageY2 = 1023, 332, 1742, 1050 # These are the locations that you are going to capture
 squareSize = 720 # Size of the Game Board. (720x720)
-main_square_coordinates = (15, 15, 15 + imageX1 + squareSize, 15 + imageY1 + squareSize) 
+main_square_coordinates = (15, 15, 15 + imageX1 + squareSize, 15 + imageY1 + squareSize) # coordinates of Game Board
 smallerSquareSize = 72 # Size of 1 entity of Game Board. (72x72)
 
 # Function to capture screen
 def capture_screen():
     return ImageGrab.grab(bbox=(imageX1, imageY1, imageX2, imageY2))
-
-# Function to perform a click at a given screen position
-def click(x, y):
-    smallSquareSize_win32api = 58
-    z1 = x // smallerSquareSize
-    z2 = y // smallerSquareSize
-    x = int(814 + 30 + smallSquareSize_win32api*z1)
-    y = int(263 + 30 + smallSquareSize_win32api*z2)
-
-    win32api.SetCursorPos((x, y)) # move the cursor to the position of (x, y)
-    sleep(1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0) # The left mouse button is pressed
-    sleep(0.5)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0) # The left mouse button is released
-    #win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0) # The left mouse button is pressed
-   #win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0) # The left mouse button is released
 
 # Check if its our turn or not
 def is_player_turn():
@@ -48,7 +32,7 @@ def is_player_turn():
 
     return (indicator_color[0]<20 and indicator_color[1]>30 and indicator_color[2]>90) # if its blue it ll return True, if its red it ll return False
 
-
+# Function to analyze missed or succesful hits
 def analyze_board(img):
     # Crop the image to focus on the main square
     square_img = img.crop(main_square_coordinates)
@@ -97,12 +81,11 @@ def analyze_board(img):
 
     return board
 
-
-# Function to draw a 2D representation of the board
+# Function to draw the board
 def draw_board(board):
     system('cls') # Clear Output
     count = 0
-    final_board = " " + "_"*22 + "\n"
+    final_board = " " + "_"*21 + "\n"
     for square in board:
         if square[0] == 1:
             final_board += "| "
@@ -114,38 +97,62 @@ def draw_board(board):
         if square[0] == 10:
             count += 1
             final_board += "|\n"
-    final_board += "\n " + "‾"*22
+    final_board += "\n " + "‾"*21
     return final_board
 
-# Function to find and hit the last hit square or hit a random empty square
+# Function to perform a click at a given screen position
+def click(x, y):
+    smallSquareSize_win32api = 58
+    z1 = x // smallerSquareSize
+    z2 = y // smallerSquareSize
+    x = int(814 + 30 + smallSquareSize_win32api*z1)
+    y = int(263 + 30 + smallSquareSize_win32api*z2)
+
+    win32api.SetCursorPos((x, y)) # move the cursor to the position of (x, y)
+    sleep(0.1) # To decrease Error ratio
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0) # The left mouse button is pressed
+    sleep(0.1) # To decrease Error ratio
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0) # The left mouse button is released
+
+# Function to hit
 def make_move(board):
-    # Implement the logic to decide the next move
-    
     # Example: Call the hit_random function for simplicity
-    hit_random(board)
+    find_hits(board)
+
 # Function to hit a random empty square
 def hit_random(board):
     while True:
-        random_x = random.randint(1, 10)
         random_y = random.randint(1, 10)
+        if random_y % 2 == 0:
+            random_x = random.randrange(1, 11, 2)
+        else:
+            random_x = random.randrange(2, 11, 2)
         if board[(random_x, random_y)][0] == 0:
             # print("[RH] Clicking on:", random_x, random_y)
             #print(board[(random_x, random_y)][1], board[(random_x, random_y)][2])
             click(board[(random_x, random_y)][1], board[(random_x, random_y)][2])
-            break
-# Function to find the last hit square and hit the squares around it
-def find_last_hit(board):
+            break       
+# Function to find hit squares and hit the squares around it
+def find_hits(board):
+    hits = [] # Location of all Hits (Down ships are not included)
     for square in board:
         if board[square][0] == 2:
+            hits.append(square)
+
             # We have found a hit square, now check and hit the squares around it
-            hit_around_last(board, square)
-            break
-    else:
+            #hit_around_last(board, square)
+            #break
+    if not hits:
         # If no hit square is found, hit a random empty square
         hit_random(board)
+
+    for square in hits:
+        if hit_around_last(board, square):
+            break
+    
 # Function to hit the squares around the last hit square
-def hit_around_last(board, last_hit_square):
-    x, y = last_hit_square
+def hit_around_last(board, hit_square):
+    x, y = hit_square
 
     # Check and hit the square above, below, left, and right of the last hit square
     for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -153,10 +160,11 @@ def hit_around_last(board, last_hit_square):
         if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
             print("[FLH] Clicking on:", new_x, new_y)
             click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-            break
+            return True
     else:
-        # If no valid square around the last hit square is found, hit a random empty square
-        hit_random(board)
+        # If no valid square around hit square is found we ll try other hit square
+        return False
+
 
 # Main loop
 while True:
@@ -174,7 +182,6 @@ while True:
 
             # Make a move (random hit)      
             make_move(game_board)
-
             sleep(2.5) # A delay to get exact colour. (Ship Explosion duration : (2.2-2.4)s)
 
         else:
@@ -187,11 +194,7 @@ while True:
             print(draw_board(game_board))
 
             print("His turn")
-            sleep(3)
             
-
-            
-
     except Exception as e:
         # Handle any exceptions 
         print(f"An error occurred: {e}")
