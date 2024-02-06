@@ -26,19 +26,19 @@ def is_player_turn():
 
     # Get the color of the indicator pixel
     indicator_pixel = (9,1071)  # Left bottom corner of screen. It can be any corner. When player turns change also corner colors change too
-    finished_pixel = (100,100)
-    img = ImageGrab.grab(bbox=(1, 1, 1920, 1080)) # 
+    finished_pixel = (100,100)  # If color becomes Dark Grey at this location than game finished
+    img = ImageGrab.grab(bbox=(1, 1, 1920, 1080)) 
     indicator_color = img.getpixel(indicator_pixel)
-    finished_color = img.getpixel(finished_pixel) # (32, 32, 32) = Dark Grey = Game Finised
-    
+    finished_color = img.getpixel(finished_pixel) 
+
+    # Red : Enemies Turn , Blue : Our Turn , Dark Grey : Game Finised
+    # print(f"Indicator Color: {indicator_color}") # if it is our turn, output must be [<20, >30, >90] 
+    # EX: Our turn (11, 43, 106), Enemies turn (137, 19, 47), Game Finished (32, 32, 32)
+
     if all(value < 40 for value in finished_color):
         # Game Finished
         game_finished = True
         return False
-
-    # Red : Enemies Turn , Blue : Our Turn 
-    # print(f"Indicator Color: {indicator_color}") # if it is our turn, output must be [<20, >30, >90] 
-    # EX: Our turn (11, 43, 106), Enemies turn (137, 19, 47)
 
     return (indicator_color[0]<20 and indicator_color[1]>30 and indicator_color[2]>90) # if its blue it ll return True, if its red it ll return False
 
@@ -126,20 +126,31 @@ def click(x, y):
 
 # Function to hit
 def make_move(board):
-    # Example: Call the hit_random function for simplicity
     find_hits(board)
 
 # Function to hit a random empty square
 def hit_random(board):
     while True:
         random_y = random.randint(1, 10)
-        if random_y % 2 == 0:
-            random_x = random.randrange(1, 11, 2)
+        if random_y % 2 == 0: # We dont need to shoot every square, half of it is enough.
+            random_x = random.randrange(1, 11, 2) # If y is even x will be odd
         else:
-            random_x = random.randrange(2, 11, 2)
+            random_x = random.randrange(2, 11, 2) # If y is odd x will be even
+
+        # Hit attempt possibilities: (-) : We ll not hit, (X) : we can hit
+            # - X - X - X - X - X
+            # X - X - X - X - X -
+            # - X - X - X - X - X
+            # X - X - X - X - X -
+            # - X - X - X - X - X
+            # X - X - X - X - X -
+            # - X - X - X - X - X
+            # X - X - X - X - X -
+            # - X - X - X - X - X
+            # X - X - X - X - X -
+        # With this hits all ships can be found so we dont need to hit half of the squares
+
         if board[(random_x, random_y)][0] == 0:
-            # print("[RH] Clicking on:", random_x, random_y)
-            #print(board[(random_x, random_y)][1], board[(random_x, random_y)][2])
             click(board[(random_x, random_y)][1], board[(random_x, random_y)][2])
             break       
 # Function to find hit squares and hit the squares around it
@@ -168,18 +179,24 @@ def hit_around_last(board, hit_square, hits):
     for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
         new_x, new_y = x + dx, y + dy
         if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-            print("[FLH] Clicking on:", new_x, new_y)
             click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
             return True
     else:
         # If no valid square around hit square is found we ll try other hit square
         return False
 
+def start_game(x, y, z):
+    sleep(z)
+    win32api.SetCursorPos((x, y))
+    sleep(0.1)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0) # The left mouse button is pressed
+    sleep(0.1) # To decrease Error ratio
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0) # The left mouse button is released
+
 
 # Main loop
 while True:
     try:
-
         # Check if it's the player's turn
         if is_player_turn():
 
@@ -187,12 +204,10 @@ while True:
 
             game_board = analyze_board(screen_img)
 
-            # Print or visualize the game board
             print(draw_board(game_board))
-
-            # Make a move (random hit)      
+   
             make_move(game_board)
-            sleep(2.5) # A delay to get exact colour. (Ship Explosion duration : (2.2-2.4)s)
+            sleep(2.8) # A delay to get exact colour. (Ship Explosion duration : (2.2-2.5)s)
 
         elif not game_finished:
 
@@ -200,14 +215,34 @@ while True:
 
             game_board = analyze_board(screen_img)
 
-            # Print or visualize the game board
             print(draw_board(game_board))
 
             print("His turn")
 
         else:
             print(" Game Finished ")
-            break
+
+            x=1300 # Click Continue Button
+            y=780
+            start_game(x,y,10)
+            
+            x = 1480 # Close Ad
+            y = 50
+            start_game(x, y, 30) # Waiting the Ad
+            start_game(x, y, 15) # Waiting the Ad
+            start_game(x, y, 15) # Waiting the Ad
+
+            x = 865
+            y = 580
+            start_game(x, y, 5) # Click Start Button
+
+            x = 1420
+            y = 480
+            start_game(x,y,35) # Waiting to find game
+
+            sleep(5)
+
+
             
     except Exception as e:
         # Handle any exceptions 
