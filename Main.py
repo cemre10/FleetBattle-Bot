@@ -14,6 +14,7 @@ imageX1, imageY1, imageX2, imageY2 = 1023, 332, 1742, 1050 # These are the locat
 squareSize = 720 # Size of the Game Board. (720x720)
 main_square_coordinates = (15, 15, 15 + imageX1 + squareSize, 15 + imageY1 + squareSize) # coordinates of Game Board
 smallerSquareSize = 72 # Size of 1 entity of Game Board. (72x72)
+game_finished = False
 
 # Function to capture screen
 def capture_screen():
@@ -21,10 +22,19 @@ def capture_screen():
 
 # Check if its our turn or not
 def is_player_turn():
+    global game_finished
+
     # Get the color of the indicator pixel
     indicator_pixel = (9,1071)  # Left bottom corner of screen. It can be any corner. When player turns change also corner colors change too
+    finished_pixel = (100,100)
     img = ImageGrab.grab(bbox=(1, 1, 1920, 1080)) # 
     indicator_color = img.getpixel(indicator_pixel)
+    finished_color = img.getpixel(finished_pixel) # (32, 32, 32) = Dark Grey = Game Finised
+    
+    if all(value < 40 for value in finished_color):
+        # Game Finished
+        game_finished = True
+        return False
 
     # Red : Enemies Turn , Blue : Our Turn 
     # print(f"Indicator Color: {indicator_color}") # if it is our turn, output must be [<20, >30, >90] 
@@ -147,11 +157,11 @@ def find_hits(board):
         hit_random(board)
 
     for square in hits:
-        if hit_around_last(board, square):
+        if hit_around_last(board, square, hits):
             break
     
 # Function to hit the squares around the last hit square
-def hit_around_last(board, hit_square):
+def hit_around_last(board, hit_square, hits):
     x, y = hit_square
 
     # Check and hit the square above, below, left, and right of the last hit square
@@ -184,7 +194,7 @@ while True:
             make_move(game_board)
             sleep(2.5) # A delay to get exact colour. (Ship Explosion duration : (2.2-2.4)s)
 
-        else:
+        elif not game_finished:
 
             screen_img = capture_screen()
 
@@ -194,6 +204,10 @@ while True:
             print(draw_board(game_board))
 
             print("His turn")
+
+        else:
+            print(" Game Finished ")
+            break
             
     except Exception as e:
         # Handle any exceptions 
