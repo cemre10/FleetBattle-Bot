@@ -1,7 +1,12 @@
-# FleetBattle Bot 🚢
+<p align="center">
+  <img src="https://i.postimg.cc/cCNMr1LQ/Screenshot-2024-02-07-220957.png" alt="Fleet Battle Game Icon" width="200">
+</p>
+<h1 align="center" style="margin-left: 20px;">
+  <font size="120">FleetBattle Bot</font>
+</h1> 
 
 ## Description
-FleetBattle Bot is an automated script for playing Fleet Battle, originally developed by Mohammad Tomaraei.
+FleetBattle Bot is an automated script designed for playing the Fleet Battle mobile game on desktop. Originally developed by Mohammad Tomaraei in 2019, I have modified the script by introducing new features, enhancing intelligence, and ensuring compatibility with recent updates.
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -15,16 +20,16 @@ FleetBattle Bot is an automated script for playing Fleet Battle, originally deve
 ## Overview 🌐
 This script automates gameplay in Fleet Battle, allowing the bot to make moves during its turn. It is an extension and modification of the original work by Mohammad Tomaraei.
 
-## Requirements 🛠️
+## Requirements ✨
 - Python (version X.X.X)
 - Additional dependencies, if any...
 
-## Features ✨
+## Features 🚀
 - Automated gameplay during the bot's turn.
 - Detection and analysis of game board status.
 - Smart hit strategy.
 
-## How to Use 🚀
+## How to Use 🎯
 1. Clone the repository.
 2. Install required dependencies.
 3. Run the script (`main.py`).
