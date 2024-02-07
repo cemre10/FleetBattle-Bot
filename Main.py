@@ -49,7 +49,7 @@ def is_player_turn():
         return False
 
     return (indicator_color[0]<20 and indicator_color[1]>30 and indicator_color[2]>90) # if its blue it ll return True, if its red it ll return False
-
+ 
 # Function to analyze missed or succesful hits
 def analyze_board(img):
     # Crop the image to focus on the main square
@@ -176,6 +176,7 @@ def find_hits(board):
  
 # Function to hit the squares around the last hit square
 def hit_around(board, hits):
+    # If one of those ships sunk our program will not calculate that possibility
     global battleship
     global aircraft_carrier 
     global cruiser 
@@ -344,13 +345,67 @@ def hit_around(board, hits):
                 click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
                 return True
 
-    if not aircraft_carrier and (hit_counts == 4 or hit_counts == 5):
+    if not aircraft_carrier and (hit_counts == 3 or hit_counts == 4 or hit_counts == 5):
+        if hit_counts == 3:
+            x1, y1 = hits[0]
+            x, y = hits[1]
+            x2, y2 = hits[2]
+
+            if x1 - 1 == x and y1 + 1 == y:
+                new_x, new_y = x1 - 1, y1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True                
+
+            if x1 + 1 == x2 and y1 + 1 == y2:
+                new_x, new_y = x1 + 1, y1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+
+                new_x, new_y = x1, y1 + 1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+
+            if x - 1 == x2 and y + 1 == y2:
+                new_x, new_y = x, y + 1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+                
+                new_x, new_y = x1, y1 - 1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+ 
         if hit_counts == 4:
             x1, y1 = hits[0]
             x2, y2 = hits[1]
             x3, y3 = hits[2]
             x4, y4 = hits[3]
 
+            if (x1 == x3 and y1 == y3 - 1) and (x1 == x2 - 1 and y1 == y2) and (x2 == x3 + 1 and y2 == y3 - 1) and (x2 == x4 and y2 == y4 - 1):
+                new_x, new_y = x1 - 1, y1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+                
+                new_x, new_y = x2, y2 - 1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+                
+                new_x, new_y = x2 + 1, y2
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+                
+                new_x, new_y = x4, y4 + 1
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True             
+         
             if (x1 == x4 and x1 == x3 - 1) and (y1 == y4 - 2 and y1 == y3 - 1):
                 new_x, new_y = x3, y3 - 1
                 if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
@@ -385,12 +440,12 @@ def hit_around(board, hits):
                     return True
 
             if (x1 == x2 + 1 and x1 == x4) and (y1 == y2 - 1 and y1 == y4 - 2):
-                new_x, new_y = x1, y1 - 1
+                new_x, new_y = x2, y2 - 1
                 if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
                     click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
                     return True
                 
-                new_x, new_y = x1, y1 + 1
+                new_x, new_y = x2, y2 + 1
                 if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
                     click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
                     return True
@@ -490,7 +545,7 @@ def hit_around(board, hits):
                 return True
 
 def start_game(x, y, z):
-    sleep(z)
+    sleep(z) # Delay to wait ads, simulations, finding a game
     win32api.SetCursorPos((x, y))
     sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0) # The left mouse button is pressed
@@ -501,7 +556,7 @@ def start_game(x, y, z):
 while True:
     try:
         # Check if it's the player's turn
-        if is_player_turn():
+        if is_player_turn(): # Our Turn
 
             screen_img = capture_screen()
 
@@ -512,7 +567,7 @@ while True:
             make_move(game_board)
             sleep(2.8) # A delay to get exact colour. (Ship Explosion duration : (2.2-2.5)s)
 
-        elif not game_finished:
+        elif not game_finished: # Enemies Turn
 
             screen_img = capture_screen()
 
@@ -520,9 +575,11 @@ while True:
 
             print(draw_board(game_board))
 
-            print("His turn")
+            print("Enemies Turn")
 
-        else:
+            sleep(3) # Delay to slow down program
+
+        else: # Game Finished
             print(" Game Finished ")
 
             x = 1280
@@ -547,9 +604,9 @@ while True:
             
             x = 1480 # Close Ad
             y = 50
-            start_game(x, y, 15) # Waiting the Ad
-            start_game(x, y, 10) # Waiting the Ad
-            start_game(x, y, 10) # Waiting the Ad
+            start_game(x, y, 60) # Waiting the Ad ( All ads have different close button so we must wait )
+            start_game(x, y, 10) # Waiting the Ad ( possible 2. ad )
+            start_game(x, y, 10) # Waiting the Ad ( possible 3. ad )
 
             x = 865
             y = 580
@@ -569,9 +626,7 @@ while True:
             submarine = False # 4 square size 
             destroyer = False # 3 square size
             patrol_boat = False # 2 square size
-
-
-            
+          
     except Exception as e:
         # Handle any exceptions 
         print(f"An error occurred: {e}")
