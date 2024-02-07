@@ -6,6 +6,7 @@ import random
 from time import sleep
 import win32api, win32con
 from os import system
+import traceback
 
 ### THESE COORDINATES ARE VALID FOR MY COMPUTER SCREEN (1920x1080). YOU COULD CHANGE IT! ###
 
@@ -118,10 +119,13 @@ def draw_board(board):
 # Function to perform a click at a given screen position
 def click(x, y):
     smallSquareSize_win32api = 58
+    startPoint_X_win32api = 814
+    startPoint_Y_win32api = 263
+    distance_win32api = 30
     z1 = x // smallerSquareSize
     z2 = y // smallerSquareSize
-    x = int(814 + 30 + smallSquareSize_win32api*z1)
-    y = int(263 + 30 + smallSquareSize_win32api*z2)
+    x = int(startPoint_X_win32api + distance_win32api + smallSquareSize_win32api*z1)
+    y = int(startPoint_Y_win32api + distance_win32api + smallSquareSize_win32api*z2)
 
     win32api.SetCursorPos((x, y)) # move the cursor to the position of (x, y)
     sleep(0.1) # To decrease Error ratio
@@ -630,6 +634,7 @@ while True:
     except Exception as e:
         # Handle any exceptions 
         print(f"An error occurred: {e}")
+        traceback.print_exc()
 
     # Add a delay to control the loop frequency
     sleep(0.1)
