@@ -93,7 +93,14 @@ Make sure to have Python installed on your system before installing these librar
 ### Adjusting Screen Constants
    Discovering accurate screen constants is crucial, and there is a lot of way to measure screen and one of them this is using the Windows ruler. Simply press the `Windows key + Shift + M` to open the ruler, and measure Game Board screen size and coordinates (x1, y1, x2, y2).
 
-   <!--![Windows Ruler Demo](link-to-your-gif-image.gif)![Windows Ruler Demo](link-to-your-gif-image.gif)![Windows Ruler Demo](link-to-your-gif-image.gif)-->
+   <div style="display: flex; justify-content: space-between;">
+  <img src="https://i.postimg.cc/wjn5yZLV/image3.png" alt="Windows Ruler Demo 3" width="30%">
+  <img src="https://i.postimg.cc/vHqtMcmC/image1.png" alt="Windows Ruler Demo 1" width="30%">
+  <img src="https://i.postimg.cc/P5CzqTpJ/image2.png" alt="Windows Ruler Demo 2" width="30%">
+</div>
+
+In this illustration, the Windows ruler provides a visual guide to identify precise screen constants for your configuration. 
+In the first image, we identify the `squareSize`, while in the second and third images, we capture the coordinates (`imageX1`, `imageY1`, `imageX2`, `imageY2`) for precise configuration.
    
    If you're still experiencing difficulties in modifying screen constants, consider the following steps:
   
