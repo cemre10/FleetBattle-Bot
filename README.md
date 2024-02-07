@@ -24,7 +24,7 @@ This script automates gameplay in Fleet Battle, allowing the bot to make moves d
 - Python (version X.X.X)
 - Additional dependencies, if any...
 
-## Features 🚀
+## Features
 - Automated gameplay during the bot's turn.
 - Detection and analysis of game board status.
 - Smart hit strategy.
