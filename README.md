@@ -16,9 +16,9 @@ FleetBattle Bot is an automated script designed for playing the Fleet Battle mob
 5. [Troubleshooting](#troubleshooting)
 6. [License](#license)
 7. [Acknowledgements](#acknowledgements)
+<a name="overview"></a>
 
 ## Overview 🌐
-<a name="overview"></a>
 This script automates gameplay in Fleet Battle, allowing the bot to make moves during its turn. Additionally, the bot can analyze the game board, interpret various situations, and strategically make hits. With a win ratio of over 35% in Quick Games mode, the bot consistently performs well. The "start game" function enables the bot to start new games, ensuring a continuous and efficient gaming experience.
 
 ## Requirements ✨
