@@ -91,7 +91,10 @@ Make sure to have Python installed on your system before installing these librar
 
    After running the program, the bot will analyze the game and make hits automatically. Once the game finishes, it is capable of opening a new match.
 
-<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODI2aG9qdHhwMzR0aGh2Y2gxZnI5bGlqeHJyNGg0Yjlkc3o3NzMyaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TLWlrQ47vt3K5AZCFy/giphy.gif" width="400" /> <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZndjNDlkN2oyMjY2bXFsNDdtNHV2MnppZmF3YWxiOHpkNGQybDFxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6Wg8yaARGecx7iKwLI/giphy-downsized-large.gif" width="476" />
+<div style="display: flex; justify-content: space-between;">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODI2aG9qdHhwMzR0aGh2Y2gxZnI5bGlqeHJyNGg0Yjlkc3o3NzMyaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TLWlrQ47vt3K5AZCFy/giphy.gif" alt="gif1" width="43%">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZndjNDlkN2oyMjY2bXFsNDdtNHV2MnppZmF3YWxiOHpkNGQybDFxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6Wg8yaARGecx7iKwLI/giphy-downsized-large.gif" alt="gif2" width="50%">
+</div>
 
    If the bot does not accurately analyze the game screen or if mouse clicks occur at the wrong locations, please refer to [Screen Analysis Issues ](#screen-analysis-issues ) and [Win32 Location Issues](#win32-location-issues) in the [Troubleshooting section](#troubleshooting).
 
