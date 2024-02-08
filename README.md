@@ -134,23 +134,23 @@ To resolve screen analysis issues, we first need to identify the source of the p
 
   Try [Troubleshooting section](#troubleshooting). If you still encounter problems, the issue may be related to color pixels or the coordinates of the main square.
 
-  1- Ensure that the image you captured is large enough to encompass the entire game board.
+   1. Ensure that the image you captured is large enough to encompass the entire game board.
  
-  2- Remember that the coordinates (0,0) for the main square are relative to the image you captured, not the entire screen.
+   2. Remember that the coordinates (0,0) for the main square are relative to the image you captured, not the entire screen.
  
-  3- Check and adjust the main_square_coordinates parameter, where (15, 15) allows the bot to check the center of the entire board. Note that these values may vary from screen to screen.
+   3. Check and adjust the main_square_coordinates parameter, where (15, 15) allows the bot to check the center of the entire board. Note that these values may vary from screen to screen.
   
-  4- Confirm that your Fleet Battle settings are correct, such as the colors for sunk (black), hit (red), missed (white), gray X, and empty entry (blue (ocean)).
+   4. Confirm that your Fleet Battle settings are correct, such as the colors for sunk (black), hit (red), missed (white), gray X, and empty entry (blue (ocean)).
  
-  5- Verify if the RGB colors are appropriately configured.
+   5. Verify if the RGB colors are appropriately configured.
 
 #### If the issue is within the is_player_turn function:
   
   This function needs to capture a new screenshot to examine the corners. With updates, the color of the screen corners changes when the player's turn changes. Simply updating constants may not effect on this function.
  
-  1- Confirm that the coordinates check the corners of the screen.
+  1. Confirm that the coordinates check the corners of the screen.
  
-  2- Check if RGB colors are correctly configured (Red for enemy's turn, Blue for our turn, Black means game ended).
+  2. Check if RGB colors are correctly configured (Red for enemy's turn, Blue for our turn, Black means game ended).
 
 #### Otherwise:
   
@@ -201,11 +201,11 @@ To resolve screen analysis issues, we first need to identify the source of the p
 
    With the mentioned steps, problems should be resolved. If issues persist, consider the following:
 
-   1- **Start Game Logic:** The `is_player_turn` function checks the screen corners for each loop. If it detects a black color pixel, it returns false, indicating that the game has finished and in the while loop it goes to the else condition and calls the `start_game` function multiple times, check the coordinates to click on (x, y) and delays within the else block. For instance, on your computer, the coordinates for closing an ad may differ.
+   1. **Start Game Logic:** The `is_player_turn` function checks the screen corners for each loop. If it detects a black color pixel, it returns false, indicating that the game has finished and in the while loop it goes to the else condition and calls the `start_game` function multiple times, check the coordinates to click on (x, y) and delays within the else block. For instance, on your computer, the coordinates for closing an ad may differ.
 
-   2- **Technical Issues:**  Ensure that all libraries are up-to-date and support the functions being called.
+   2. **Technical Issues:**  Ensure that all libraries are up-to-date and support the functions being called.
    
-   3- **Check for Syntax Errors:** If you have tried all the suggested solutions and the problem persists, inspect the code structure for potential syntax errors. This is the second time you should review the code for any issues.   
+   3. **Check for Syntax Errors:** If you have tried all the suggested solutions and the problem persists, inspect the code structure for potential syntax errors. This is the second time you should review the code for any issues.   
 
 By addressing these considerations, you should be able to troubleshoot and resolve any lingering problems.
 
