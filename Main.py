@@ -105,7 +105,7 @@ def draw_board(board):
     for square in board:
         if square[0] == 1:
             final_board += "| "
-        final_board += str(board[square][0]).replace("0", "•").replace("1", "✖").replace("2", "✷").replace("3", "★") + " "
+        final_board += str(board[square][0]).replace("0", "•").replace("1", "✖").replace("2", "✷").replace("3", "⚑") + " "
 
         if count == 9 and square[0] == 10:
             final_board += "|"
@@ -511,6 +511,13 @@ def hit_around(board, hits):
                     if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
                         click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
                         return True
+            
+            if (x1 == x4 and x1 == x5 - 1) and (y1 == y4 - 1 and y1 == y5 - 1):
+                new_x, new_y = x4 - 1, y4
+                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
+                    return True
+
                     
     if not battleship and hit_counts == 4:
         x1, y1 = hits[0]
