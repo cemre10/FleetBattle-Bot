@@ -160,7 +160,7 @@ To resolve screen analysis issues, we first need to identify the source of the p
 
 #### Otherwise:
   
-  If the problem is in the capture_screen() function, refer to the [Troubleshooting section](#troubleshooting) must solve problem
+  If the problem is in the capture_screen() function, refer to the [Adjusting Screen Constants](#Adjusting-Screen-Constants) must solve problem
  
   If the issue is within the click() function, consult [Win32 Location Issues](#win32-location-issues) must solve problem
   
