@@ -93,7 +93,7 @@ Make sure to have Python installed on your system before installing these librar
 
 <div style="display: flex; justify-content: space-between;">
   <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODI2aG9qdHhwMzR0aGh2Y2gxZnI5bGlqeHJyNGg0Yjlkc3o3NzMyaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TLWlrQ47vt3K5AZCFy/giphy.gif" alt="gif1" width="43%">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZndjNDlkN2oyMjY2bXFsNDdtNHV2MnppZmF3YWxiOHpkNGQybDFxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6Wg8yaARGecx7iKwLI/giphy-downsized-large.gif" alt="gif2" width="50%">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJib2RmODZ6MWk4N2I1dzNtNXh2dHBhd2IyZXJxbHgyZDd2aHR5cyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6Wg8yaARGecx7iKwLI/giphy-downsized.gif" alt="gif2" width="50%">
 </div>
 
    If the bot does not accurately analyze the game screen or if mouse clicks occur at the wrong locations, please refer to [Screen Analysis Issues ](#screen-analysis-issues ) and [Win32 Location Issues](#win32-location-issues) in the [Troubleshooting section](#troubleshooting).
