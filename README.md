@@ -138,7 +138,7 @@ To resolve screen analysis issues, we first need to identify the source of the p
  
    2. Remember that the coordinates (0,0) for the main square are relative to the image you captured, not the entire screen.
  
-   3. Check and adjust the main_square_coordinates parameter, where (15, 15) allows the bot to check the center of the entire board. Note that these values may vary from screen to screen.
+   3. Check and adjust the main_square_coordinates parameter, where (15, 15) allows the bot to check the center of the entry. Note that these values may vary from screen to screen.
   
    4. Confirm that your Fleet Battle settings are correct, such as the colors for sunk (black), hit (red), missed (white), gray X, and empty entry (blue (ocean)).
  
