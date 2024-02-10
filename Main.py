@@ -18,12 +18,16 @@ smallerSquareSize = 72 # Size of 1 entity of Game Board. (72x72)
 game_finished = False # Boolean Variable that shows game finished or not
 
 # To add logic on hit_around function define the ships
+old_board = {}
+board = {}
+last_hit = ()
+
 battleship = False # 5 square long
 aircraft_carrier = False # 6 square size
 cruiser = False # 4 square long
 submarine = False # 4 square size 
 destroyer = False # 3 square size
-patrol_boat = False # 2 square size
+petrol_boat = False # 2 square size
 
 # Function to capture screen
 def capture_screen():
@@ -53,6 +57,11 @@ def is_player_turn():
  
 # Function to analyze missed or succesful hits
 def analyze_board(img):
+    global old_board
+    global board
+
+    old_board = dict(board)
+
     # Crop the image to focus on the main square
     square_img = img.crop(main_square_coordinates)
 
@@ -93,8 +102,6 @@ def analyze_board(img):
             else:
                 print("Warning: Pixel coordinates out of bounds")
 
-        #print("\n")
-
     return board
 
 # Function to draw the board
@@ -118,12 +125,17 @@ def draw_board(board):
 
 # Function to perform a click at a given screen position
 def click(x, y):
+    global last_hit
+
     smallSquareSize_win32api = 58
     startPoint_X_win32api = 814
     startPoint_Y_win32api = 263
     distance_win32api = 30
     z1 = x // smallerSquareSize
     z2 = y // smallerSquareSize
+
+    last_hit = (z1 + 1, z2 + 1)
+
     x = int(startPoint_X_win32api + distance_win32api + smallSquareSize_win32api*z1)
     y = int(startPoint_Y_win32api + distance_win32api + smallSquareSize_win32api*z2)
 
@@ -162,6 +174,7 @@ def hit_random(board):
         if board[(random_x, random_y)][0] == 0:
             click(board[(random_x, random_y)][1], board[(random_x, random_y)][2])
             break       
+
 # Function to find hit squares and hit the squares around it
 def find_hits(board):
     hits = [] # Location of all Hits (Down ships are not included)
@@ -169,15 +182,364 @@ def find_hits(board):
         if board[square][0] == 2:
             hits.append(square)
 
-            # We have found a hit square, now check and hit the squares around it
-            #hit_around(board, square)
-            #break
+    find_sunk_ships(board)
+
     if not hits:
         # If no hit square is found, hit a random empty square
         hit_random(board)
 
     hit_around(board, hits)
- 
+
+# Function to find down ships
+def find_sunk_ships(board):
+    global old_board
+    global last_hit
+
+    # If one of those ships sunk our program will not calculate that possibility
+    global battleship
+    global aircraft_carrier 
+    global cruiser 
+    global submarine 
+    global destroyer 
+    global petrol_boat 
+
+    sunk_ships = []
+    for square in board:
+        if board[square][0] == 3:
+            sunk_ships.append(square)
+
+    old_hits = []
+    for square in old_board:
+        if old_board[square][0] == 2:
+            old_hits.append(square)
+
+    new_sunk = []
+    for i in old_hits:
+        if i in sunk_ships:
+            new_sunk.append(i)
+    
+    if not new_sunk == []:
+        new_sunk.append(last_hit)
+
+    if len(new_sunk) == 6:
+        aircraft_carrier = True
+    
+    elif len(new_sunk) == 5:
+        battleship = True
+    
+    elif len(new_sunk) == 4:
+        x, y = new_sunk[0]
+        x1, y1 = new_sunk[1]
+        x2, y2 = new_sunk[2]
+        x3, y3 = new_sunk[3]
+
+        if x == x1 and x1 == x2 and x2 == x3:
+            cruiser = True
+        
+        elif y == y1 and y1 == y2 and y2 == y3:
+            cruiser = True
+        
+        else:
+            submarine = True
+    
+    elif len(new_sunk) == 3:
+        destroyer = True
+    
+    elif len(new_sunk) == 2:
+        petrol_boat = True
+
+def click_caller(board, x, y):
+    if (1 <= x <= 10) and (1 <= y <= 10) and board[(x, y)][0] == 0:
+            click(board[(x, y)][1], board[(x, y)][2])
+            return True           
+
+def smart_hit(board, hit, count, bool1, bool2):
+    if count == 1:
+        x, y = hit[0]
+
+        # Check and hit the square above, below, left, and right of the last hit square
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            new_x, new_y = x + dx, y + dy
+            return click_caller(board, new_x, new_y)
+
+    elif count == 2:
+        x1, y1 = hit[0]
+        x2, y2 = hit[1]
+
+        if x1 == x2:
+            new_x, new_y = x1, y1 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1, y2 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2 - 1, y2
+            if click_caller(board, new_x, new_y):
+                return True
+
+        if y1 == y2:
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2 + 1, y2
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1, y1 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2, y2 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+
+    elif count == 3 and bool1:
+        x1, y1 = hit[0]
+        x2, y2= hit[2]
+
+        if x1 == x2:
+            new_x, new_y = x1, y1 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2, y2 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+        
+        if y1 == y2:     
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2 + 1, y2
+            if click_caller(board, new_x, new_y):
+                return True
+
+    elif count == 3:
+        x, y = hit[1]
+        x1, y1 = hit[0]
+        x2, y2= hit[2]
+
+        if x1 == x2:
+            new_x, new_y = x - 1, y
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x + 1, y
+            if click_caller(board, new_x, new_y):
+                return True
+        
+        if y1 == y2:
+            new_x, new_y = x, y - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x, y + 1
+            if click_caller(board, new_x, new_y):
+                return True
+
+        if x1 - 1 == x and y1 + 1 == y:
+            new_x, new_y = x2 + 1, y2
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2, y2 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1 - 1, y1
+            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
+                if click_caller(board, new_x, new_y):
+                    return True
+
+        if x1 + 1 == x2 and y1 + 1 == y2:
+            new_x, new_y = x - 1, y
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x, y + 1
+            if click_caller(board, new_x, new_y):
+                return True
+
+            new_x, new_y = x + 1, y
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x, y - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1 + 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+
+            new_x, new_y = x1, y1 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+        if x - 1 == x2 and y + 1 == y2:
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1, y1 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x, y + 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1, y1 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+
+    elif count == 4 and bool2:
+        x1, y1 = hit[0]
+        x2, y2 = hit[1]
+        x3, y3 = hit[2]
+        x4, y4 = hit[3]
+
+        if (x1 == x3 and y1 == y3 - 1) and (x1 == x2 - 1 and y1 == y2) and (x2 == x3 + 1 and y2 == y3 - 1) and (x2 == x4 and y2 == y4 - 1):
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2, y2 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2 + 1, y2
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x4, y4 + 1
+            if click_caller(board, new_x, new_y):
+                return True            
+        
+        if (x1 == x4 and x1 == x3 - 1) and (y1 == y4 - 2 and y1 == y3 - 1):
+            new_x, new_y = x3, y3 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x3, y3 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+        
+        if (x1 == x3 - 2 and x1 == x4 - 1) and (y1 == y3 and y1 == y4 - 1):
+            new_x, new_y = x4 - 1, y4
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x4 + 1, y4
+            if click_caller(board, new_x, new_y):
+                return True
+        
+        if (x1 == x2 + 1 and x1 == x4 - 1) and (y1 == y2 - 1 and y1 == y4 - 1):
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x1 + 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+
+        if (x1 == x2 + 1 and x1 == x4) and (y1 == y2 - 1 and y1 == y4 - 2):
+            new_x, new_y = x2, y2 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2, y2 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+    
+    elif count == 4:
+        x1, y1 = hit[0]
+        x2, y2 = hit[3]
+
+        if y2 == y1:
+            new_x, new_y = x1 - 1, y1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2 + 1, y2
+            if click_caller(board, new_x, new_y):
+                return True
+        
+        if x2 == x1:
+            new_x, new_y = x1, y1 - 1
+            if click_caller(board, new_x, new_y):
+                return True
+            
+            new_x, new_y = x2, y2 + 1
+            if click_caller(board, new_x, new_y):
+                return True
+
+    elif count == 5:
+        x1, y1 = hit[0]
+        x2, y2 = hit[1]
+        x3, y3 = hit[2]
+        x4, y4 = hit[3]
+        x5, y5 = hit[4]
+
+        if (x1 == x4 and x1 == x3 - 1) and (y1 == y4 - 2 and y1 == y3 - 1):
+            if x1 == x5 - 1 and y1 == y5 - 2:
+                new_x, new_y = x5, y5 + 1
+                if click_caller(board, new_x, new_y):
+                    return True
+            if x1 == x2 - 1 and y1 == y2:
+                new_x, new_y = x2, y2 - 1
+                if click_caller(board, new_x, new_y):
+                    return True
+        
+        if (x1 == x3 - 2 and x1 == x4 - 1) and (y1 == y3 and y1 == y4 - 1):
+            if x1 == x4 and y1 == y4 - 1:
+                new_x, new_y = x4 - 1, y4
+                if click_caller(board, new_x, new_y):
+                    return True
+            
+            if x1 == x5 - 2 and y1 == y5 - 1:
+                new_x, new_y = x5 + 1, 54
+                if click_caller(board, new_x, new_y):
+                    return True
+            
+        if (x1 == x2 + 1 and x1 == x4 - 1) and (y1 == y2 - 1 and y1 == y4 - 1):
+            if x1 == x5 - 2 and y1 == y5 - 1:
+                new_x, new_y = x1 - 1, y1
+                if click_caller(board, new_x, new_y):
+                    return True
+            
+            if x2 == x3 + 2 and y2 == y3 - 1:
+                new_x, new_y = x2 + 1, y2
+                if click_caller(board, new_x, new_y):
+                    return True
+
+        if (x1 == x2 + 1 and x1 == x4) and (y1 == y2 - 1 and y1 == y4 - 2):
+            if x1 == x5 - 1 and y1 == y5 - 2:
+                new_x, new_y = x1, y1 - 1
+                if click_caller(board, new_x, new_y):
+                    return True
+
+            if x1 == x4 + 1 and y1 == y4 - 2:    
+                new_x, new_y = x4, y4 + 1
+                if click_caller(board, new_x, new_y):
+                    return True
+        
+        if (x1 == x4 and x1 == x5 - 1) and (y1 == y4 - 1 and y1 == y5 - 1):
+            new_x, new_y = x4 - 1, y4
+            if click_caller(board, new_x, new_y):
+                    return True
+
+    else:
+        return False
+
 # Function to hit the squares around the last hit square
 def hit_around(board, hits):
     # If one of those ships sunk our program will not calculate that possibility
@@ -186,364 +548,33 @@ def hit_around(board, hits):
     global cruiser 
     global submarine 
     global destroyer 
-    global patrol_boat 
+    global petrol_boat 
 
     hit_counts = len(hits)
 
-    if not patrol_boat and hit_counts == 1:
-        x, y = hits[0]
+    if not petrol_boat and hit_counts == 1:
+        if smart_hit(board, hits, hit_counts, False, False):
+            return True
 
-        # Check and hit the square above, below, left, and right of the last hit square
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            new_x, new_y = x + dx, y + dy
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
+    if not destroyer and (hit_counts == 1 or hit_counts == 2):
+        if smart_hit(board, hits, hit_counts, False, False):
+            return True
+  
+    if not submarine and (1 <= hit_counts <= 3):
+        if smart_hit(board, hits, hit_counts, False, False):
+            return True
 
-    if not destroyer and hit_counts == 2:
-        x1, y1 = hits[0]
-        x2, y2 = hits[1]
+    if not cruiser and (1 <= hit_counts <= 3):
+        if smart_hit(board, hits, hit_counts, True, False):
+            return True
 
-        if x1 == x2:
-            new_x, new_y = x1, y1 - 1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
+    if not aircraft_carrier and (1 <= hit_counts <= 5):
+        if smart_hit(board, hits, hit_counts, False, True):
+            return True
             
-            new_x, new_y = x1, y2 + 1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-
-        if y1 == y2:
-            new_x, new_y = x1 - 1, y1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-            
-            new_x, new_y = x2 + 1, y2
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-
-    if not submarine and (hit_counts == 2 or hit_counts == 3):
-        if hit_counts == 2:
-            x1, y1 = hits[0]
-            x2, y2 = hits[1]
-
-            if x1 == x2:
-                new_x, new_y = x1 - 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x2 - 1, y2
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-            if y1 == y2:
-                new_x, new_y = x1, y1 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x2, y2 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-        if hit_counts == 3:
-            x, y = hits[1]
-            x1, y1 = hits[0]
-            x2, y2= hits[2]
-
-            if x1 == x2:
-                new_x, new_y = x - 1, y
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x + 1, y
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-            
-            if y1 == y2:
-                new_x, new_y = x, y - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x, y + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-            if x1 - 1 == x and y1 + 1 == y:
-                new_x, new_y = x2 + 1, y2
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x2, y2 + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-            if x1 + 1 == x2 and y1 + 1 == y2:
-                new_x, new_y = x - 1, y
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x, y + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-                new_x, new_y = x + 1, y
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x, y - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-            if x - 1 == x2 and y + 1 == y2:
-                new_x, new_y = x1 - 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x1, y1 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-             
-    if not cruiser and hit_counts == 3:
-        x1, y1 = hits[0]
-        x2, y2 = hits[2]
-
-        if x1 == x2:
-            new_x, new_y = x1, y1 - 1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-            
-            new_x, new_y = x2, y2 + 1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-
-        if y1 == y2:
-            new_x, new_y = x1- 1, y1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-            
-            new_x, new_y = x2 + 1, y2
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-
-    if not aircraft_carrier and (hit_counts == 3 or hit_counts == 4 or hit_counts == 5):
-        if hit_counts == 3:
-            x1, y1 = hits[0]
-            x, y = hits[1]
-            x2, y2 = hits[2]
-
-            if x1 - 1 == x and y1 + 1 == y:
-                new_x, new_y = x1 - 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True                
-
-            if x1 + 1 == x2 and y1 + 1 == y2:
-                new_x, new_y = x1 + 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-                new_x, new_y = x1, y1 + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-            if x - 1 == x2 and y + 1 == y2:
-                new_x, new_y = x, y + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x1, y1 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
- 
-        if hit_counts == 4:
-            x1, y1 = hits[0]
-            x2, y2 = hits[1]
-            x3, y3 = hits[2]
-            x4, y4 = hits[3]
-
-            if (x1 == x3 and y1 == y3 - 1) and (x1 == x2 - 1 and y1 == y2) and (x2 == x3 + 1 and y2 == y3 - 1) and (x2 == x4 and y2 == y4 - 1):
-                new_x, new_y = x1 - 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x2, y2 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x2 + 1, y2
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x4, y4 + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True             
-         
-            if (x1 == x4 and x1 == x3 - 1) and (y1 == y4 - 2 and y1 == y3 - 1):
-                new_x, new_y = x3, y3 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x3, y3 + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-            
-            if (x1 == x3 - 2 and x1 == x4 - 1) and (y1 == y3 and y1 == y4 - 1):
-                new_x, new_y = x4 - 1, y4
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x4 + 1, y4
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-            
-            if (x1 == x2 + 1 and x1 == x4 - 1) and (y1 == y2 - 1 and y1 == y4 - 1):
-                new_x, new_y = x1 - 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x1 + 1, y1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-            if (x1 == x2 + 1 and x1 == x4) and (y1 == y2 - 1 and y1 == y4 - 2):
-                new_x, new_y = x2, y2 - 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-                
-                new_x, new_y = x2, y2 + 1
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-        
-        if hit_counts == 5:
-            x1, y1 = hits[0]
-            x2, y2 = hits[1]
-            x3, y3 = hits[2]
-            x4, y4 = hits[3]
-            x5, y5 = hits[4]
-
-            if (x1 == x4 and x1 == x3 - 1) and (y1 == y4 - 2 and y1 == y3 - 1):
-                if x1 == x5 - 1 and y1 == y5 - 2:
-                    new_x, new_y = x5, y5 + 1
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-                if x1 == x2 - 1 and y1 == y2:
-                    new_x, new_y = x2, y2 - 1
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-            
-            if (x1 == x3 - 2 and x1 == x4 - 1) and (y1 == y3 and y1 == y4 - 1):
-                if x1 == x4 and y1 == y4 - 1:
-                    new_x, new_y = x4 - 1, y4
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-                
-                if x1 == x5 - 2 and y1 == y5 - 1:
-                    new_x, new_y = x5 + 1, 54
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-                
-            if (x1 == x2 + 1 and x1 == x4 - 1) and (y1 == y2 - 1 and y1 == y4 - 1):
-                if x1 == x5 - 2 and y1 == y5 - 1:
-                    new_x, new_y = x1 - 1, y1
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-                
-                if x2 == x3 + 2 and y2 == y3 - 1:
-                    new_x, new_y = x2 + 1, y2
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-
-            if (x1 == x2 + 1 and x1 == x4) and (y1 == y2 - 1 and y1 == y4 - 2):
-                if x1 == x5 - 1 and y1 == y5 - 2:
-                    new_x, new_y = x1, y1 - 1
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-
-                if x1 == x4 + 1 and y1 == y4 - 2:    
-                    new_x, new_y = x4, y4 + 1
-                    if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                        click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                        return True
-            
-            if (x1 == x4 and x1 == x5 - 1) and (y1 == y4 - 1 and y1 == y5 - 1):
-                new_x, new_y = x4 - 1, y4
-                if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                    click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                    return True
-
-                    
-    if not battleship and hit_counts == 4:
-        x1, y1 = hits[0]
-        x2, y2 = hits[3]
-
-        if y2 == y1:
-            new_x, new_y = x1 - 1, y1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-            
-            new_x, new_y = x2 + 1, y2
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-        
-        if x2 == x1:
-            new_x, new_y = x1, y1 - 1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
-            
-            new_x, new_y = x2, y2 + 1
-            if (1 <= new_x <= 10) and (1 <= new_y <= 10) and board[(new_x, new_y)][0] == 0:
-                click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
-                return True
+    if not battleship and (1 <= hit_counts <= 4):
+        if smart_hit(board, hits, hit_counts, True, False):
+            return True
 
     # If there is any logical error
     for square in hits:
@@ -555,6 +586,7 @@ def hit_around(board, hits):
                 click(board[(new_x, new_y)][1], board[(new_x, new_y)][2])
                 return True
 
+# Function to start new game
 def start_game(x, y, z):
     sleep(z) # Delay to wait ads, simulations, finding a game
     win32api.SetCursorPos((x, y))
@@ -603,11 +635,11 @@ while True:
 
             x = 1280
             y = 135
-            start_game(x, y, 2) # One more time to be sure for some possible cases
+            start_game(x, y, 4) # One more time to be sure for some possible cases
 
             x = 1143
             y = 160
-            start_game(x, y, 2) # One more time to be sure for some possible cases
+            start_game(x, y, 4) # One more time to be sure for some possible cases
 
             x = 1300 # Click Continue Button
             y = 780
@@ -636,7 +668,7 @@ while True:
             cruiser = False # 4 square long
             submarine = False # 4 square size 
             destroyer = False # 3 square size
-            patrol_boat = False # 2 square size
+            petrol_boat = False # 2 square size
           
     except Exception as e:
         # Handle any exceptions 
