@@ -203,24 +203,25 @@ def find_sunk_ships(board):
     global destroyer 
     global petrol_boat 
 
-    sunk_ships = []
+    sunk_ships = [] # Detects Sunk Ships
     for square in board:
         if board[square][0] == 3:
             sunk_ships.append(square)
 
-    old_hits = []
+    old_hits = [] # Detect Hits before this move
     for square in old_board:
         if old_board[square][0] == 2:
             old_hits.append(square)
 
-    new_sunk = []
+    new_sunk = [] # Detect down ships in that move with checking difference with old hits and sunk ships
     for i in old_hits:
         if i in sunk_ships:
             new_sunk.append(i)
     
-    if not new_sunk == []:
+    if not new_sunk == []: # If newly down ship detected than we append last hit too
         new_sunk.append(last_hit)
 
+    # Now we have down ship's hits and we can understand which ship is that:
     if len(new_sunk) == 6:
         aircraft_carrier = True
     
@@ -250,7 +251,7 @@ def find_sunk_ships(board):
 
 # Function to call click() function
 def click_caller(board, x, y):
-    if (1 <= x <= 10) and (1 <= y <= 10) and board[(x, y)][0] == 0:
+    if (1 <= x <= 10) and (1 <= y <= 10) and board[(x, y)][0] == 0: # It ll call click function if that entry is valid and empty
             click(board[(x, y)][1], board[(x, y)][2])
             return True           
 
