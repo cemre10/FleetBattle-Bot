@@ -17,9 +17,10 @@ FleetBattle Bot is an automated script designed for playing the Fleet Battle mob
 6. [License](#license)
 7. [Acknowledgements](#acknowledgements)
 
-<a name="overview"></a>
+
 
 ## Overview 🌐
+<a name="overview"></a>
 
 This script automates gameplay in Fleet Battle, allowing the bot to make moves during its turn. Additionally, the bot can analyze the game board, interpret various situations, and strategically make hits. With a win ratio of over 35% in Quick Games mode, the bot consistently performs well. The "start game" function enables the bot to start new games, ensuring a continuous and efficient gaming experience.
 
@@ -43,9 +44,10 @@ You can install the necessary libraries using the following commands:
 
 Make sure to have Python installed on your system before installing these libraries.
 
-<a name="features"></a>
+
 
 ## Features 🚀
+<a name="features"></a>
 
 - **Automated Gameplay:** The bot autonomously makes moves during its turn.
 - **Intelligent Board Analysis:** Utilizes pixel color changes for real-time detection and analysis of the game board status.
@@ -53,9 +55,10 @@ Make sure to have Python installed on your system before installing these librar
 - **Strategic Hit Planning:** Employs a smart hit strategy to optimize gameplay and increase the chances of successful hits.
 - **Turn Recognition:** Can identify whether it's the player's or the opponent's turn, enhancing decision-making capabilities.
 
-<a name="how-to-use"></a>
+
 
 ## How to Use 🎯
+<a name="how-to-use"></a>
 
 1. Install required dependencies.
 
@@ -93,16 +96,18 @@ Make sure to have Python installed on your system before installing these librar
 
 <div style="display: flex; justify-content: space-between;">
   <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODI2aG9qdHhwMzR0aGh2Y2gxZnI5bGlqeHJyNGg0Yjlkc3o3NzMyaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TLWlrQ47vt3K5AZCFy/giphy.gif" alt="gif1" width="43%">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZndjNDlkN2oyMjY2bXFsNDdtNHV2MnppZmF3YWxiOHpkNGQybDFxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6Wg8yaARGecx7iKwLI/giphy-downsized-large.gif" alt="gif2" width="50%">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJib2RmODZ6MWk4N2I1dzNtNXh2dHBhd2IyZXJxbHgyZDd2aHR5cyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6Wg8yaARGecx7iKwLI/giphy-downsized.gif" alt="gif2" width="50%">
 </div>
 
    If the bot does not accurately analyze the game screen or if mouse clicks occur at the wrong locations, please refer to [Screen Analysis Issues ](#screen-analysis-issues ) and [Win32 Location Issues](#win32-location-issues) in the [Troubleshooting section](#troubleshooting).
 
-<a name="troubleshooting"></a>
+
  
 ## Troubleshooting 🛠️
+<a name="troubleshooting"></a>
 
 ### Adjusting Screen Constants
+<a name="Adjusting Screen Constants"></a>
 
    Discovering accurate screen constants is crucial, and there is a lot of way to measure screen and one of them this is using the Windows ruler. Simply press the `Windows key + Shift + M` to open the ruler, and measure Game Board screen size and coordinates (x1, y1, x2, y2).
 
@@ -127,6 +132,7 @@ In the first image, we identify the `squareSize`, while in the second and third 
       Enable or review debugging output in the terminal. The script might provide information on why adjustments are not working as expected.
 
 ### Screen Analysis Issues 
+<a name="Screen Analysis Issues"></a>
 
 To resolve screen analysis issues, we first need to identify the source of the problem.
       
@@ -138,7 +144,7 @@ To resolve screen analysis issues, we first need to identify the source of the p
  
    2. Remember that the coordinates (0,0) for the main square are relative to the image you captured, not the entire screen.
  
-   3. Check and adjust the main_square_coordinates parameter, where (15, 15) allows the bot to check the center of the entire board. Note that these values may vary from screen to screen.
+   3. Check and adjust the main_square_coordinates parameter, where (15, 15) allows the bot to check the center of the entry. Note that these values may vary from screen to screen.
   
    4. Confirm that your Fleet Battle settings are correct, such as the colors for sunk (black), hit (red), missed (white), gray X, and empty entry (blue (ocean)).
  
@@ -154,7 +160,7 @@ To resolve screen analysis issues, we first need to identify the source of the p
 
 #### Otherwise:
   
-  If the problem is in the capture_screen() function, refer to the [Troubleshooting section](#troubleshooting) must solve problem
+  If the problem is in the capture_screen() function, refer to the [Adjusting Screen Constants](#Adjusting-Screen-Constants) must solve problem
  
   If the issue is within the click() function, consult [Win32 Location Issues](#win32-location-issues) must solve problem
   
@@ -164,6 +170,7 @@ To resolve screen analysis issues, we first need to identify the source of the p
   For issues in other functions, review the code structure, and ensure there are no syntax errors, as these functions are interconnected. If errors persist, the root cause may be within the mentioned functions.
      
 ### Win32 Location Issues 
+<a name="Win32 Location Issues"></a>
 
    If mouse clicks are happening at incorrect locations, consider the following:
   
@@ -198,6 +205,7 @@ To resolve screen analysis issues, we first need to identify the source of the p
    If these constants do not work for your computer screen, continue the iterative process of testing and adjusting until you find the suitable constants.
 
 ### Else:
+<a name="Else"></a>
 
    With the mentioned steps, problems should be resolved. If issues persist, consider the following:
 
@@ -209,15 +217,13 @@ To resolve screen analysis issues, we first need to identify the source of the p
 
 By addressing these considerations, you should be able to troubleshoot and resolve any lingering problems.
 
-<a name="license"></a>
-
 ## License 📄
+<a name="license"></a>
 
 This project is licensed under the [GNU General Public License (GPL) Version 3](LICENSE).
 
-<a name="acknowledgements"></a>
-
 ## Acknowledgements 🙏
+<a name="acknowledgements"></a>
 
 - Original code by [Mohammad Tomaraei](https://github.com/themreza) (2019).
 - Modified and enhanced by [@cemre10](https://github.com/cemre10) (2024).
