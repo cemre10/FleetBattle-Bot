@@ -6,7 +6,7 @@
 </h1> 
 
 ## Description
-FleetBattle Bot is an automated script designed for playing the Fleet Battle mobile game on desktop. Originally developed by [Mohammad Tomaraei](https://github.com/themreza) in 2019, I have modified the script by introducing new features, adding new functions, enhancing intelligence, and ensuring compatibility with recent updates.
+FleetBattle Bot is an automated script designed for playing the Fleet Battle mobile game on desktop. Originally developed by [Mohammad Tomaraei](https://github.com/themreza) in 2019, I have modified the script by introducing new features, adding new functions, enhancing intelligence, and ensuring compatibility with recent updates. (New functions will be added in Future to enhance intelligence!)
 
 ## Table of Contents
 1. [Overview](#overview)
