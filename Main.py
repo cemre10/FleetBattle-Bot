@@ -248,11 +248,13 @@ def find_sunk_ships(board):
     elif len(new_sunk) == 2:
         petrol_boat = True
 
+# Function to call click() function
 def click_caller(board, x, y):
     if (1 <= x <= 10) and (1 <= y <= 10) and board[(x, y)][0] == 0:
             click(board[(x, y)][1], board[(x, y)][2])
             return True           
 
+# Function to hit logically
 def smart_hit(board, hit, count, bool1, bool2):
     if count == 1:
         x, y = hit[0]
